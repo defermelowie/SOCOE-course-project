@@ -103,3 +103,6 @@ vsim.dbg
 
 .vscode/
 *.code-workspace
+
+
+./src/localmod/
