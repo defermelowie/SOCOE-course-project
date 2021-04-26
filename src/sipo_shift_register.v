@@ -1,8 +1,8 @@
 module sipo_shift_register (
-    clk,
-    reset,
-    s_in,
-    p_out
+    clk,    // input ---> clock
+    reset,  // input ---> asynchronous reset
+    s_in,   // input ---> serial input
+    p_out   // output --> paralel output
 );
 
 // === Parameters =============================================

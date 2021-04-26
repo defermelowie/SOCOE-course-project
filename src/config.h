@@ -5,9 +5,8 @@
 `define CONFIG_H
 
 // === Colors =================================================
-
 // Use hexadecimal color representation and write as valid verilog.
-// For example #FFFFFF --> 24'hffffff
+// For example: white --> #FFFFFF --> 24'hffffff
 
 // SOURCE: https://www.nordtheme.com/
 parameter SIGNAL_COLOR = 24'hA3BE8C;
@@ -19,5 +18,6 @@ parameter TEXT_COLOR = 24'hECEFF4;
 // TODO: Make sample frequency configurable
 
 // === Header size ============================================
+// This is the size in pixels of the header at the top of the screen
 
-// TODO: Make header size configurable
+parameter HEADER_SIZE = 32;
