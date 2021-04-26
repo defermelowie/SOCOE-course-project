@@ -13,7 +13,7 @@ module vga_timing_generator (
 
 // === Included headers =======================================
 
-`include "vga.h"    // FIXME: This module won't synthesize if there is no valid resolution defined in "config.h"
+`include "vga.h"
 
 // === Parameters =============================================
 
