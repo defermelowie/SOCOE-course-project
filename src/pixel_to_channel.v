@@ -67,7 +67,7 @@ always @(*) begin
     channel_number = 0;
     for(k=0; k<MAX_CHAN_COUNT; k=k+1) begin
         if (channel_enable[k] && n == visible_channel_number)
-            channel_number = j;
+            channel_number = k;
         n = n + channel_enable[k];
     end
 end
