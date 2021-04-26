@@ -109,5 +109,5 @@ vsim.dbg
 #                     MISC                     #
 #==============================================#
 
-/src/boardspecific/*
+./src/localmod/*
 !README.md
