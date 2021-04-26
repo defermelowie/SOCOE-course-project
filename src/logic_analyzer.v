@@ -1,7 +1,7 @@
 module logic_analyzer (
     clk,          // input ---> clock
     reset,        // input ---> asynchronous reset
-    chan_enable   // input ---> array with an enable for each channel
+    chan_enable,  // input ---> array with an enable for each channel
     vga_r,        // output --> vga red signal
     vga_g,        // output --> vga green signal
     vga_b,        // output --> vga blue signal
@@ -16,16 +16,16 @@ module logic_analyzer (
 
 // === Parameters =============================================
 
-parameter COLOR_DEPTH = 4;
+
 
 // === Module IO ==============================================
 
 input clk;
 input reset;
 input [9:0] chan_enable;
-output [COLOR_DEPTH-1:0] vga_r;
-output [COLOR_DEPTH-1:0] vga_g;
-output [COLOR_DEPTH-1:0] vga_b;
+output reg [VGA_COLOR_DEPTH-1:0] vga_r;
+output reg [VGA_COLOR_DEPTH-1:0] vga_g;
+output reg [VGA_COLOR_DEPTH-1:0] vga_b;
 output vga_hsync;
 output vga_vsync;
 
@@ -55,6 +55,26 @@ vga_timing_generator vga_tg (
 );
 
 // === Structure ==============================================
+
+// INFO this is only to test if vga works
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        vga_r = 0;
+        vga_g = 0;
+        vga_b = 0;
+    end else begin
+        if (vga_visible) begin
+            vga_r = 8;
+            vga_g = 0;
+            vga_b = 0;
+        end else begin
+            vga_r = 0;
+            vga_g = 0;
+            vga_b = 0;
+        end
+    end
+    
+end
 
 
 endmodule
