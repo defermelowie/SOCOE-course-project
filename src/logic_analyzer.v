@@ -81,18 +81,18 @@ always @(posedge clk or posedge reset) begin
         if (vga_visible) 
             if (is_channel_pixel) begin
                 // TODO: Set channel pixels
-                vga_r = SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] - current_channel;
-                vga_g = SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] - current_channel;
-                vga_b = SIGNAL_COLOR[7:7 - (VGA_COLOR_DEPTH-1)] - current_channel;
+                vga_r = (current_channel[0]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+                vga_g = (current_channel[0]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+                vga_b = (current_channel[0]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header pixels
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
                 vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = TEXT_COLOR[7:7 - (VGA_COLOR_DEPTH-1)];
+                vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else begin
                 vga_r = BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
                 vga_g = BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = BACKGROUND_COLOR[7:7 - (VGA_COLOR_DEPTH-1)];
+                vga_b = BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end
         else begin
             vga_r = 0;

@@ -20,22 +20,23 @@ input [MAX_CHAN_COUNT-1:0] channel_enable;
 input [$clog2(VGA_VER_RES)-1:0] pixel_row;
 
 output is_channel;
-output [$clog2(MAX_CHAN_COUNT)-1:0] channel_number;
+output reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_number;
 
 // === Internal signals =======================================
 
 reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
+wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
 
-wire [$clog2(VGA_VER_RES)-1:0] channel_lower_boundary, channel_height;
+wire [$clog2(VGA_VER_RES)-1:0] channel_height;
 
 // === Structure ==============================================
 
 // Determine if the pixel belongs to a channel
-assign is_channel = pixel_row > OFFSET && channel_count != 0 && channel_number < channel_count;
+assign is_channel = pixel_row >= OFFSET && channel_count != 0 && visible_channel_number < channel_count;
 
 // Count the number of enabled channels
 integer i;
-always @(channel_enable) begin
+always @(*) begin
     channel_count = 0;
     for(i=0; i<MAX_CHAN_COUNT; i=i+1) begin
         channel_count = channel_count + channel_enable[i];
@@ -45,7 +46,30 @@ end
 // Determine the height per channel
 assign channel_height = (VGA_VER_RES - OFFSET)/channel_count;
 
-// Determine channel number
-assign channel_number = (pixel_row - OFFSET)/channel_height;    // FIXME: This outputs the Nth visible channel instead of the correct channel_number
+// Determine which visible channel this is
+assign visible_channel_number = (pixel_row - OFFSET)/channel_height;
+
+// Map visible channel number to channel number
+//
+// Example (channel enable = 'b100101):
+// nth visible channel -> nth one is kth bit -> kth channel
+// 0 -------------------> 1 ------------------> 0
+//                        0
+// 1 -------------------> 1 ------------------> 2
+//                        0
+//                        0
+// 2 -------------------> 1 ------------------> 5
+// TODO: Ask Luc if there is a better way to map this since this one is ugly
+integer k, n;
+reg [$clog2(MAX_CHAN_COUNT)-1:0] count;
+always @(*) begin
+    n = 0;
+    channel_number = 0;
+    for(k=0; k<MAX_CHAN_COUNT; k=k+1) begin
+        if (channel_enable[k] && n == visible_channel_number)
+            channel_number = j;
+        n = n + channel_enable[k];
+    end
+end
 
 endmodule
