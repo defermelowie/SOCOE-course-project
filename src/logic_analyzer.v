@@ -44,6 +44,9 @@ wire [$clog2(CHANNEL_COUNT)-1:0] current_channel;
 wire is_channel_pixel;
 wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
 
+// Data
+wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];
+
 // === Used modules ===========================================
 
 vga_timing_generator vga_tg (
@@ -62,12 +65,29 @@ vga_timing_generator vga_tg (
 pixel_to_channel #(
     .MAX_CHAN_COUNT(CHANNEL_COUNT),
     .OFFSET(HEADER_SIZE)
-) (
+) ptc (
     .channel_enable(chan_enable),
     .pixel_row(vga_display_row),
     .is_channel(is_channel_pixel),
     .channel_number(current_channel)
 );
+
+// SOURCE: https://www.chipverify.com/verilog/verilog-generate-block
+// SOURCE: https://stackoverflow.com/questions/33899691/instantiate-modules-in-generate-for-loop-in-verilog/33900079
+genvar i;
+generate
+    for(i = 0; i < CHANNEL_COUNT; i = i + 1) begin : sipo_gen
+        sipo_shift_register #(
+            .SIZE(SAMPLE_BUFF_SIZE)
+        ) sipo_reg (
+            .clk(clk),
+            .reset(reset),
+            .shift(1'b0),   // TODO: Shift when reading new data
+            .s_in(1'b0),    // TODO: Read new data
+            .p_out(channel_data[i])
+        );
+    end
+endgenerate
 
 // === Structure ==============================================
 

@@ -17,6 +17,10 @@ parameter TEXT_COLOR = 24'hECEFF4;
 
 // TODO: Make sample frequency configurable
 
+// === Sample buffer size =====================================
+
+parameter SAMPLE_BUFF_SIZE = 256;
+
 // === Header size ============================================
 // This is the size in pixels of the header at the top of the screen
 
