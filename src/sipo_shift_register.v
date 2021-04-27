@@ -17,11 +17,6 @@ output reg [SIZE-1:0] p_out;
 
 // === Structure ==============================================
 
-// INFO: only for testing
-initial begin
-    p_out = 256'h1578785477887da7844557a78545e784ff785487e1578785477887da784455ad;
-end
-
 always @(posedge clk or posedge reset) begin
     if (reset)
         p_out = 0;
