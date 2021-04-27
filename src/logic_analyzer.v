@@ -45,7 +45,8 @@ wire is_channel_pixel;
 wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
 
 // Data
-wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];   // FIXME: Data from sipo regs does not appear here
+// SOURCE: https://www.chipverify.com/verilog/verilog-arrays-memories
+wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];   // FIXME: Data from sipo regs does not appear in channel_data
 
 // === Used modules ===========================================
 
@@ -74,6 +75,29 @@ pixel_to_channel #(
 
 // SOURCE: https://www.chipverify.com/verilog/verilog-generate-block
 // SOURCE: https://stackoverflow.com/questions/33899691/instantiate-modules-in-generate-for-loop-in-verilog/33900079
+/* EXAMPLE: (SOURCE: https://www.fpgatutorial.com/verilog-generate/)
+// rd data array
+wire [3:0] rd_data [2:0];
+   
+// vector for the enable signals
+wire [2:0] enable;
+   
+// Genvar to use in the for loop
+genvar i;
+   
+generate
+  for (i=0; i<=2; i=i+1) begin
+    ram ram_i (
+      .clock    (clock),
+      .enable   (enable[i]),
+      .wr_en    (wr_en),
+      .addr     (addr),
+      .wr_data  (wr_data),
+      .rd_data  (rd_data[i])
+    );
+  end
+endgenerate
+*/
 genvar i;
 generate
     for(i = 0; i < CHANNEL_COUNT; i = i + 1) begin : sipo_gen
@@ -84,7 +108,7 @@ generate
             .reset(reset),
             .shift(1'b0),   // TODO: Shift when reading new data
             .s_in(1'b0),    // TODO: Read new data
-            .p_out(channel_data[i][SAMPLE_BUFF_SIZE-1:0])   // FIXME: Data from sipo regs does not appear in channel_data
+            .p_out(channel_data[i])   // BUG: Data from sipo regs does not appear in channel_data
         );
     end
 endgenerate
