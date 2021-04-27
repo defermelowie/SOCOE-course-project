@@ -45,7 +45,7 @@ wire is_channel_pixel;
 wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
 
 // Data
-wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];
+wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];   // FIXME: Data from sipo regs does not appear here
 
 // === Used modules ===========================================
 
@@ -84,7 +84,7 @@ generate
             .reset(reset),
             .shift(1'b0),   // TODO: Shift when reading new data
             .s_in(1'b0),    // TODO: Read new data
-            .p_out(channel_data[i])
+            .p_out(channel_data[i][SAMPLE_BUFF_SIZE-1:0])   // FIXME: Data from sipo regs does not appear in channel_data
         );
     end
 endgenerate
@@ -101,9 +101,9 @@ always @(posedge clk or posedge reset) begin
         if (vga_visible) 
             if (is_channel_pixel) begin
                 // TODO: Set channel pixels
-                vga_r = (current_channel[0]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-                vga_g = (current_channel[0]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = (current_channel[0]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+                vga_r = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+                vga_g = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+                vga_b = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header pixels
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
