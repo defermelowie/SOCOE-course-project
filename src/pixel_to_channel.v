@@ -2,7 +2,9 @@ module pixel_to_channel(
     channel_enable,         // input ---> Array with channel enable signals (needed to calculate height per channel)
     pixel_row,              // input ---> Pixel row of which to get the channel
     is_channel,             // output --> Belongs pixel row to a channel?
-    channel_number          // output --> Channel number based on pixel row
+    channel_number,         // output --> Channel number based on pixel row
+    channel_height,         // output --> height of the channel in pixels
+    channel_offset        // output --> channel vertical offset
 );
 
 // === Included headers =======================================
@@ -21,13 +23,12 @@ input [$clog2(VGA_VER_RES)-1:0] pixel_row;
 
 output is_channel;
 output reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_number;
+output [$clog2(VGA_VER_RES)-1:0] channel_height, channel_offset;
 
 // === Internal signals =======================================
 
 reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
 wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
-
-wire [$clog2(VGA_VER_RES)-1:0] channel_height;
 
 // === Structure ==============================================
 
@@ -48,6 +49,9 @@ assign channel_height = (VGA_VER_RES - OFFSET)/channel_count;
 
 // Determine which visible channel this is
 assign visible_channel_number = (pixel_row - OFFSET)/channel_height;
+
+// Determine channel vertical offset
+assign channel_offset = OFFSET + (channel_height * visible_channel_number);
 
 // Map visible channel number to channel number
 //

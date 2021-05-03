@@ -40,13 +40,15 @@ wire vga_visible;
 wire vga_visible_next;
 
 // Display layout signals
-wire [$clog2(CHANNEL_COUNT)-1:0] current_channel;
 wire is_channel_pixel;
+wire [$clog2(CHANNEL_COUNT)-1:0] current_channel;
+wire [$clog2(VGA_VER_TOTAL)-1:0] current_channel_height, current_channel_offset;
 wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
 
 // Data
 // SOURCE: https://www.chipverify.com/verilog/verilog-arrays-memories
-wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];   // FIXME: Data from sipo regs does not appear in channel_data
+wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];
+wire [SAMPLE_BUFF_SIZE-1:0] current_channel_data = channel_data[current_channel];
 
 // === Used modules ===========================================
 
@@ -70,7 +72,9 @@ pixel_to_channel #(
     .channel_enable(chan_enable),
     .pixel_row(vga_display_row),
     .is_channel(is_channel_pixel),
-    .channel_number(current_channel)
+    .channel_number(current_channel),
+    .channel_height(current_channel_height),     
+    .channel_offset(current_channel_offset)
 );
 
 // SOURCE: https://www.chipverify.com/verilog/verilog-generate-block
@@ -108,7 +112,7 @@ generate
             .reset(reset),
             .shift(1'b0),   // TODO: Shift when reading new data
             .s_in(1'b0),    // TODO: Read new data
-            .p_out(channel_data[i])   // BUG: Data from sipo regs does not appear in channel_data
+            .p_out(channel_data[i])
         );
     end
 endgenerate
@@ -125,9 +129,9 @@ always @(posedge clk or posedge reset) begin
         if (vga_visible) 
             if (is_channel_pixel) begin
                 // TODO: Set channel pixels
-                vga_r = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-                vga_g = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = (current_channel[0] && vga_display_col[3]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+                vga_r = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+                vga_g = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+                vga_b = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header pixels
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
