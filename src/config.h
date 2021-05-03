@@ -19,7 +19,7 @@ parameter TEXT_COLOR = 24'hECEFF4;
 
 // === Sample buffer size =====================================
 
-parameter SAMPLE_BUFF_SIZE = 256;
+parameter SAMPLE_BUFF_SIZE = 32;
 
 // === Header size ============================================
 // This is the size in pixels of the header at the top of the screen
