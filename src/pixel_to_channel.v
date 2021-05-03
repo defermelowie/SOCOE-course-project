@@ -48,7 +48,7 @@ end
 assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
 
 // Determine which visible channel this is
-assign visible_channel_number = ((pixel_row - OFFSET) / (VGA_VER_RES - OFFSET)) * channel_count; // FIXME: Devision is extremely costly, is there a better way?
+assign visible_channel_number = (pixel_row - OFFSET) / channel_height; // FIXME: Devision is extremely costly, is there a better way?
 
 // Determine channel vertical offset
 assign channel_offset = OFFSET + (channel_height * visible_channel_number);
