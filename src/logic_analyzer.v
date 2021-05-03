@@ -16,7 +16,8 @@ module logic_analyzer (
 
 // === Parameters =============================================
 
-parameter CHANNEL_COUNT = 10;
+parameter CHANNEL_COUNT = 8;
+parameter CLOCK_FREQ = 50_000_000;
 
 // === Module IO ==============================================
 
@@ -129,9 +130,9 @@ always @(posedge clk or posedge reset) begin
         if (vga_visible) 
             if (is_channel_pixel) begin
                 // TODO: Set channel pixels
-                vga_r = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-                vga_g = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = (current_channel_data[vga_display_col[9:2]]) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+                vga_r = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+                vga_g = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+                vga_b = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header pixels
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
