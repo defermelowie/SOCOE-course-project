@@ -4,7 +4,7 @@ module pixel_to_channel(
     is_channel,             // output --> Belongs pixel row to a channel?
     channel_number,         // output --> Channel number based on pixel row
     channel_height,         // output --> height of the channel in pixels
-    channel_offset        // output --> channel vertical offset
+    channel_offset          // output --> channel vertical offset
 );
 
 // === Included headers =======================================
@@ -45,10 +45,10 @@ always @(*) begin
 end
 
 // Determine the height per channel
-assign channel_height = (VGA_VER_RES - OFFSET)/channel_count;
+assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
 
 // Determine which visible channel this is
-assign visible_channel_number = (pixel_row - OFFSET)/channel_height;
+assign visible_channel_number = ((pixel_row - OFFSET) / (VGA_VER_RES - OFFSET)) * channel_count; // FIXME: Devision is extremely costly, is there a better way?
 
 // Determine channel vertical offset
 assign channel_offset = OFFSET + (channel_height * visible_channel_number);
