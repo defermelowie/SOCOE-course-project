@@ -17,7 +17,7 @@
 // |r1440x900_60Hz  | 106.47 MHz     |
 // |----------------|----------------|
 
-`define r1440x900_60Hz // WARNING: This does not ensure the correct clock frequency
+`define r800x600_60Hz // WARNING: This does not ensure the correct clock frequency
 
 // === Color depth ============================================
 
