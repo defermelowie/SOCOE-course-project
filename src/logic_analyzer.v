@@ -42,9 +42,13 @@ wire vga_visible_next;
 
 // Display layout signals
 wire is_channel_pixel;
+wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
+
+// Channel layout signals
 wire [$clog2(CHANNEL_COUNT)-1:0] current_channel;
 wire [$clog2(VGA_VER_TOTAL)-1:0] current_channel_height, current_channel_offset;
-wire is_header_pixel = vga_display_row >= 0 && vga_display_row < HEADER_SIZE;
+wire [$clog2(VGA_VER_TOTAL)-1:0] current_channel_pxl_row = vga_display_row - current_channel_offset;
+wire current_channel_pixel_status;
 
 // Data
 // SOURCE: https://www.chipverify.com/verilog/verilog-arrays-memories
@@ -78,31 +82,19 @@ pixel_to_channel #(
     .channel_offset(current_channel_offset)
 );
 
+data_to_pixelstatus #(
+    .DATA_SIZE(SAMPLE_BUFF_SIZE),
+    .TRACE_OFFSET(16)
+) dtps (
+    .data(current_channel_data),
+    .max_height(current_channel_height),
+    .pxl_row(current_channel_pxl_row),
+    .pxl_col(vga_display_col),
+    .pxl_status(current_channel_pixel_status)
+);
+
 // SOURCE: https://www.chipverify.com/verilog/verilog-generate-block
 // SOURCE: https://stackoverflow.com/questions/33899691/instantiate-modules-in-generate-for-loop-in-verilog/33900079
-/* EXAMPLE: (SOURCE: https://www.fpgatutorial.com/verilog-generate/)
-// rd data array
-wire [3:0] rd_data [2:0];
-   
-// vector for the enable signals
-wire [2:0] enable;
-   
-// Genvar to use in the for loop
-genvar i;
-   
-generate
-  for (i=0; i<=2; i=i+1) begin
-    ram ram_i (
-      .clock    (clock),
-      .enable   (enable[i]),
-      .wr_en    (wr_en),
-      .addr     (addr),
-      .wr_data  (wr_data),
-      .rd_data  (rd_data[i])
-    );
-  end
-endgenerate
-*/
 genvar i;
 generate
     for(i = 0; i < CHANNEL_COUNT; i = i + 1) begin : sipo_gen
@@ -129,10 +121,10 @@ always @(posedge clk or posedge reset) begin
     end else begin
         if (vga_visible) 
             if (is_channel_pixel) begin
-                // TODO: Set channel pixels
-                vga_r = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-                vga_g = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = (current_channel_data[vga_display_col[9:2]] && vga_display_row != current_channel_offset) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+                // Set channel pixels
+                vga_r = (current_channel_pixel_status) ? SIGNAL_COLOR[23:23 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+                vga_g = (current_channel_pixel_status) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+                vga_b = (current_channel_pixel_status) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header pixels
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
