@@ -17,7 +17,7 @@
 // |r1440x900_60Hz  | 106.47 MHz     |
 // |----------------|----------------|
 
-`define r800x600_60Hz // WARNING: This does not ensure the correct clock frequency
+`define r1920x1080_60Hz // WARNING: This does not ensure the correct clock frequency
 
 // === Color depth ============================================
 
@@ -61,4 +61,16 @@ parameter VGA_COLOR_DEPTH = 4;
     parameter VGA_VER_STR_SYNC = 900;
     parameter VGA_VER_STP_SYNC = 903;
     parameter VGA_VER_TOTAL = 931;
+`elsif r1920x1080_60Hz
+    parameter VGA_CLOCK_FREQ = 148.5e6;
+    parameter VGA_HOR_RES = 1920;
+    parameter VGA_VER_RES = 1080;
+    parameter VGA_HOR_FIELD = 1919;
+    parameter VGA_HOR_STR_SYNC = 2007;
+    parameter VGA_HOR_STP_SYNC = 2051;
+    parameter VGA_HOR_TOTAL = 2199;
+    parameter VGA_VER_FIELD = 1079;
+    parameter VGA_VER_STR_SYNC = 1083;
+    parameter VGA_VER_STP_SYNC = 1088;
+    parameter VGA_VER_TOTAL = 1124;
 `endif
