@@ -28,7 +28,9 @@ output [$clog2(VGA_VER_RES)-1:0] channel_height, channel_offset;
 // === Internal signals =======================================
 
 reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
-wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
+//wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
+reg [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number; //ipv bovenstaande
+reg [0:-6] multiply_factor; 
 
 // === Structure ==============================================
 
@@ -42,13 +44,43 @@ always @(*) begin
     for(i=0; i<MAX_CHAN_COUNT; i=i+1) begin
         channel_count = channel_count + channel_enable[i];
     end
+    case (channel_count)
+	'b0001	:	multiply_factor = 7'b1_000000;
+	'b0010	:	multiply_factor = 7'b0_100000;
+	'b0011	:	multiply_factor = 7'b0_010101;
+	'b0100	:	multiply_factor = 7'b0_010000;
+	'b0101	:	multiply_factor = 7'b0_001101;
+	'b0110	:	multiply_factor = 7'b0_001011;
+	'b0111	:	multiply_factor = 7'b0_001001;
+	'b1000	:	multiply_factor = 7'b0_001000;
+	'b1001	:	multiply_factor = 7'b0_000111;
+	'b1010	:	multiply_factor = 7'b0_000110;
+	default	:	multiply_factor = 7'b0_000000;
+   endcase
 end
 
 // Determine the height per channel
-assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
+
+//assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
+assign channel_height = ({(VGA_VER_RES - OFFSET), 6'b000000}*multiply_factor)>>12; // Dit werkt maar de nauwkeurigheid is nog niet top
 
 // Determine which visible channel this is
-assign visible_channel_number = (pixel_row - OFFSET) / channel_height; // FIXME: Devision is extremely costly, is there a better way?
+
+ integer p;
+reg [$clog2(VGA_VER_RES)-1:0] rows;
+always @(*) begin
+    visible_channel_number = 'b0;
+    rows = pixel_row - OFFSET;
+    for (p=0; p<MAX_CHAN_COUNT; p=p+1) begin
+    	if(rows > channel_height) begin
+    	    rows = rows - channel_height;
+	    visible_channel_number = visible_channel_number + 'b1;
+	end
+    end
+end
+
+
+//assign visible_channel_number = (pixel_row - OFFSET) / channel_height; // FIXME: Devision is extremely costly, is there a better way?
 
 // Determine channel vertical offset
 assign channel_offset = OFFSET + (channel_height * visible_channel_number);
