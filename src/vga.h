@@ -15,6 +15,7 @@
 // |r800x600_60Hz   | 50 MHz         |
 // |r1280x1024_60Hz | 108 MHz        |
 // |r1440x900_60Hz  | 106.47 MHz     |
+// |r1920x1080_60Hz | 148.5 MHz      |
 // |----------------|----------------|
 
 `define r1920x1080_60Hz // WARNING: This does not ensure the correct clock frequency
