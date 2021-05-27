@@ -30,7 +30,7 @@ min(DATA_SIZE)   = 32   => 5  bits |
 => MSB of (DATA_SIZE<<FP_SCALING_SHIFT)/VGA_HOR_RES is 2^(FP_SCALING_SHIFT-6)
 => Resolution is FP_SCALING_SHIFT-6
 */
-localparam FP_SCALING_SHIFT = 10;
+localparam FP_SCALING_SHIFT = 12;
 
 function integer fp_div;
     input integer dividend;
