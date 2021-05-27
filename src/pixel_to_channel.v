@@ -30,7 +30,7 @@ output [$clog2(VGA_VER_RES)-1:0] channel_height, channel_offset;
 reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
 //wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
 reg [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number; //ipv bovenstaande
-reg [0:-6] multiply_factor; 
+reg [0:-10] multiply_factor; 
 
 // === Structure ==============================================
 
@@ -45,24 +45,24 @@ always @(*) begin
         channel_count = channel_count + channel_enable[i];
     end
     case (channel_count)
-	'b0001	:	multiply_factor = 7'b1_000000;
-	'b0010	:	multiply_factor = 7'b0_100000;
-	'b0011	:	multiply_factor = 7'b0_010101;
-	'b0100	:	multiply_factor = 7'b0_010000;
-	'b0101	:	multiply_factor = 7'b0_001101;
-	'b0110	:	multiply_factor = 7'b0_001011;
-	'b0111	:	multiply_factor = 7'b0_001001;
-	'b1000	:	multiply_factor = 7'b0_001000;
-	'b1001	:	multiply_factor = 7'b0_000111;
-	'b1010	:	multiply_factor = 7'b0_000110;
-	default	:	multiply_factor = 7'b0_000000;
+	'b0001	:	multiply_factor = 11'b1_0000000000;
+	'b0010	:	multiply_factor = 11'b0_1000000000;
+	'b0011	:	multiply_factor = 11'b0_0101010101;
+	'b0100	:	multiply_factor = 11'b0_0100000000;
+	'b0101	:	multiply_factor = 11'b0_0011001100;
+	'b0110	:	multiply_factor = 11'b0_0010101010;
+	'b0111	:	multiply_factor = 11'b0_0010010010;
+	'b1000	:	multiply_factor = 11'b0_0010000000;
+	'b1001	:	multiply_factor = 11'b0_0001110001;
+	'b1010	:	multiply_factor = 11'b0_0001100110;
+	default	:	multiply_factor = 11'b0_0000000000;
    endcase
 end
 
 // Determine the height per channel
 
 //assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
-assign channel_height = ({(VGA_VER_RES - OFFSET), 6'b000000}*multiply_factor)>>12; // Dit werkt maar de nauwkeurigheid is nog niet top
+assign channel_height = ((VGA_VER_RES - OFFSET)*multiply_factor)>>10; // Dit werkt maar de nauwkeurigheid is nog niet top
 
 // Determine which visible channel this is
 
