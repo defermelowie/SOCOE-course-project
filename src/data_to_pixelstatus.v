@@ -16,6 +16,30 @@ parameter DATA_SIZE = 256;
 parameter TRACE_OFFSET = 8;
 parameter TRACE_THICKNESS = 2;
 
+// === Constant functions =====================================
+
+/* 
+max(VGA_HOR_RES) = 1920 => 11 bits |
+                                   | => The maximum difference is 6 bits
+min(DATA_SIZE)   = 32   => 5  bits |
+
+=> MSB of DATA_SIZE/VGA_HOR_RES is 2^-6
+
+    *(shift DATA_SIZE to right with FP_SCALING_SHIFT)
+
+=> MSB of (DATA_SIZE<<FP_SCALING_SHIFT)/VGA_HOR_RES is 2^(FP_SCALING_SHIFT-6)
+=> Resolution is FP_SCALING_SHIFT-6
+*/
+localparam FP_SCALING_SHIFT = 10;
+
+function integer fp_div;
+    input integer dividend;
+    input integer divisor;
+    begin
+        fp_div = (dividend<<FP_SCALING_SHIFT)/divisor;
+    end  
+endfunction
+
 // === Module IO ==============================================
 
 input [DATA_SIZE-1:0] data;
@@ -25,48 +49,11 @@ input [$clog2(VGA_HOR_TOTAL)-1:0] pxl_col;
 output pxl_status;
 
 // === Internal signals =======================================
-/*
-TOEGEVOEGD MAAR NIET GEBRUIKT
 
-reg [$clog2(DATA_SIZE)-1:0] index1; 
-reg [$clog2(DATA_SIZE)-1:0] index2; 
-reg [$clog2(VGA_VER_TOTAL)+$clog2(DATA_SIZE)-1:0] teller1;
-reg [$clog2(VGA_VER_TOTAL)+$clog2(DATA_SIZE)-1:0] teller2;
-integer i;
-always @(*) begin
-    index1 = 'b0;
-    index2 = 'b0;
-    teller1 = pxl_col*DATA_SIZE;
-    teller2 = (pxl_col-1)*DATA_SIZE;
+wire data_at_curr_pxl_col = data[(pxl_col*fp_div(DATA_SIZE,VGA_HOR_RES))>>FP_SCALING_SHIFT];
 
-    for (i=0; i<DATA_SIZE; i=i+1) begin
-    	if(teller2 > VGA_HOR_RES) begin
-	    teller2 = teller2 - VGA_HOR_RES;
-	    index2 = index2 + 'b1;
-    	    teller1 = teller1 - VGA_HOR_RES;
-	    index1 = index1 + 'b1;
-	end
-	else if (teller1 > VGA_HOR_RES) begin
-	    teller1 = teller1 - VGA_HOR_RES;
-	    index1 = index1 + 'b1;
-	end
-    end
-end
-*/
-
-
-
-//wire data_at_curr_pxl_col = data[pxl_col*DATA_SIZE/VGA_HOR_RES]; // FIXME: Devision is extremely costly, is there a better way?
-
-//BOVENSTAANDE REGEL VERVANGEN DOOR ONDERSTAANDE
-//Deling van DATA_SIZE door VGA_HOR_RES is vaste waarde
-//TODO: manier uitwerken om deze deling slechts 1 maal te moeten doen, evt adhv Fixed point
-wire data_at_curr_pxl_col = data[pxl_col[$clog2(VGA_HOR_TOTAL)-1:6]];
 wire [$clog2(VGA_HOR_TOTAL)-1:0] prev_pxl_col = pxl_col-1;
-
-//wire data_at_prev_pxl_col = data[prev_pxl_col*DATA_SIZE/VGA_HOR_RES]; // FIXME: Devision is extremely costly, is there a better way?
-//ZELFDE ALS BOVENSTAAND
-wire data_at_prev_pxl_col = data[prev_pxl_col[$clog2(VGA_HOR_TOTAL)-1:6]];
+wire data_at_prev_pxl_col = data[(prev_pxl_col*fp_div(DATA_SIZE,VGA_HOR_RES))>>FP_SCALING_SHIFT];
 wire data_change = data_at_curr_pxl_col != data_at_prev_pxl_col;
 
 wire pxl_data_high_status = (pxl_row > TRACE_OFFSET-1) && (pxl_row < TRACE_OFFSET + TRACE_THICKNESS);
