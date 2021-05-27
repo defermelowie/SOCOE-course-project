@@ -15,7 +15,9 @@ parameter TEXT_COLOR = 24'hECEFF4;
 
 // === Sample frequency =======================================
 
-// TODO: Make sample frequency configurable
+// TODO: Optional, make sample frequency configurable instead of counter val
+// This is when the counter resets and new data is read.
+parameter TRIGGER_VAL = 50_000_000;
 
 // === Sample buffer size =====================================
 

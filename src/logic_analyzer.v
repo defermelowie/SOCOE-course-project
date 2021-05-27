@@ -2,6 +2,7 @@ module logic_analyzer (
     clk,          // input ---> clock
     reset,        // input ---> asynchronous reset
     chan_enable,  // input ---> array with an enable for each channel
+    chan_in,      // input ---> input signal of each channel
     vga_r,        // output --> vga red signal
     vga_g,        // output --> vga green signal
     vga_b,        // output --> vga blue signal
@@ -24,6 +25,7 @@ parameter CLOCK_FREQ = 50_000_000;
 input clk;
 input reset;
 input [CHANNEL_COUNT-1:0] chan_enable;
+input [CHANNEL_COUNT-1:0] chan_in;
 output reg [VGA_COLOR_DEPTH-1:0] vga_r;
 output reg [VGA_COLOR_DEPTH-1:0] vga_g;
 output reg [VGA_COLOR_DEPTH-1:0] vga_b;
@@ -54,6 +56,8 @@ wire current_channel_pixel_status;
 // SOURCE: https://www.chipverify.com/verilog/verilog-arrays-memories
 wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];
 wire [SAMPLE_BUFF_SIZE-1:0] current_channel_data = channel_data[current_channel];
+reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches predefined value
+wire trigger = (trigger_counter == TRIGGER_VAL);
 
 // === Used modules ===========================================
 
@@ -103,14 +107,26 @@ generate
         ) sipo_reg (
             .clk(clk),
             .reset(reset),
-            .shift(1'b0),   // TODO: Shift when reading new data
-            .s_in(1'b0),    // TODO: Read new data
+            .shift(trigger),
+            .s_in(chan_in[i]),
             .p_out(channel_data[i])
         );
     end
 endgenerate
 
 // === Structure ==============================================
+
+// Trigger counter (read new data when trigger_counter reaches a predefined value)
+always @(posedge clk or posedge reset) begin
+    if (reset)
+        trigger_counter = 0;
+    else begin
+        if (trigger)    // If triggered previous clock cycle, reset counter. Otherwise count up
+            trigger_counter = 0;
+        else
+            trigger_counter = trigger_counter + 1;
+    end
+end
 
 // VGA pixel color determinator
 always @(posedge clk or posedge reset) begin
@@ -126,7 +142,7 @@ always @(posedge clk or posedge reset) begin
                 vga_g = (current_channel_pixel_status) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
                 vga_b = (current_channel_pixel_status) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
-                // TODO: Set header pixels
+                // TODO: Set header text
                 vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
                 vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
                 vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];

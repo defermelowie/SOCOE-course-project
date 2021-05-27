@@ -25,10 +25,14 @@ pll_106MHz vga_pll (
 	.c0(clock)
 );
 
-logic_analyzer la (
+logic_analyzer #(
+	.CHANNEL_COUNT(10),
+	.CLOCK_FREQ(106.47e6)
+) la (
 	.clk(clock),        
     .reset(reset),      
     .chan_enable(SW[9:0]),
+	 .chan_in(ARDUINO_IO[9:0]),
     .vga_r(VGA_R),      
     .vga_g(VGA_G),      
     .vga_b(VGA_B),      

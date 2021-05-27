@@ -19,7 +19,7 @@ output reg [SIZE-1:0] p_out;
 
 always @(posedge clk or posedge reset) begin
     if (reset)
-        p_out = 256'h477887da7844557a78545e784ff785487e1578785477887da78445aaaaaaaaaa;
+        p_out = {SIZE{1'b0}};   // Reset sipo to 0
     else if (shift) begin
         p_out = p_out << 1;
         p_out[0] = s_in;
