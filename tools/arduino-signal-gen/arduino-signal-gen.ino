@@ -110,11 +110,16 @@ void listen_for_cmd()
         int index = index_str.toInt();
         uint8_t data = strtoul(data_str.c_str(), NULL, 0);
 
-        // Update data_array
-        data_array[index] = data;
+        if (index < DATA_BUFF_SIZE)
+        {
+            // Update data_array
+            data_array[index] = data;
 
-        // Show updated array
-        Serial.print("[INFO] Data[" + String(index) + "] = " + String(data_array[index]) + '\n');
+            // Show updated array
+            Serial.print("[INFO] Data[" + String(index) + "] = " + String(data_array[index]) + '\n');
+        } else {
+            Serial.print("[ERROR] Index out of bounds\n");
+        }
     }
 }
 
