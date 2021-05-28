@@ -51,7 +51,7 @@ void loop()
 
     // Check if update necessary
     currentMillis = millis();
-    if (currentMillis - previousMillis >= PERIOD / 2)
+    if (currentMillis - previousMillis >= PERIOD)
     {
         previousMillis = currentMillis;
         if (data_array_index < DATA_BUFF_SIZE - 1)
