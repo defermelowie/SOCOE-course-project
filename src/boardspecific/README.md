@@ -32,7 +32,7 @@ logic_analyzer #(
 	.clk(clock),        
     .reset(reset),      
     .chan_enable(SW[9:0]),
-	 .chan_in(ARDUINO_IO[9:0]),
+	.chan_in(ARDUINO_IO[9:0]),
     .vga_r(VGA_R),      
     .vga_g(VGA_G),      
     .vga_b(VGA_B),      
