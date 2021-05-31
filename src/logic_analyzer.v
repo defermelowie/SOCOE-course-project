@@ -138,15 +138,17 @@ endgenerate
 
 fontrom fontrom(
 	 .address(fontaddress),
-	 .clock(clock),
+	 .clock(clk),
+	 .data('b0),
+	 .wren(1'b0),
 	 .q(pixelout)
 	 );
 	 
 header_buffer textram(
 	 .address(index),
-	 .clock(clock),
+	 .clock(clk),
 	 .data('b0),
-	 .wren(1'b1),
+	 .wren(1'b0),
 	 .q(fontrom_address)
 	 );
 
@@ -179,7 +181,7 @@ always @(posedge clk or posedge reset) begin
                 vga_b = (current_channel_pixel_status) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header text
-					 if (pixelout==1) begin
+					 if (pixelout) begin
 							vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
 							vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
 							vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
