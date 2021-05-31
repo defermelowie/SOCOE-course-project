@@ -59,6 +59,25 @@ wire [SAMPLE_BUFF_SIZE-1:0] current_channel_data = channel_data[current_channel]
 reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches predefined value
 wire trigger = (trigger_counter == TRIGGER_VAL);
 
+
+
+wire pixelout;
+wire [14:0] fontaddress; // address to the 32K x 1 font ROM
+wire [3:0] f_pixel_hor; // horizontal pixel address in 16x16 font
+wire [3:0] f_pixel_ver; // vertical pixel address in 16x16 font
+wire [6:0] char_col; // column number of a character
+wire [1:0] char_row; // row number of a character
+wire [6:0] fontrom_address;
+wire [8:0] index;
+assign index = {char_row, char_col};
+
+assign f_pixel_hor = vga_display_col[3:0];
+assign f_pixel_ver = vga_display_row[3:0];
+assign char_col = vga_display_col[10:4];
+assign char_row = vga_display_row[5:4];
+assign fontaddress = {fontrom_address, f_pixel_ver, f_pixel_hor};
+ 
+
 // === Used modules ===========================================
 
 vga_timing_generator vga_tg (
@@ -91,7 +110,7 @@ data_to_pixelstatus #(
     .TRACE_OFFSET(16)
 ) dtps (
     .data(current_channel_data),
-    .max_height(current_channel_height),
+	 .max_height(current_channel_height),
     .pxl_row(current_channel_pxl_row),
     .pxl_col(vga_display_col),
     .pxl_status(current_channel_pixel_status)
@@ -113,6 +132,23 @@ generate
         );
     end
 endgenerate
+
+
+
+
+fontrom fontrom(
+	 .address(fontaddress),
+	 .clock(clock),
+	 .q(pixelout)
+	 );
+	 
+header_buffer textram(
+	 .address(index),
+	 .clock(clock),
+	 .data('b0),
+	 .wren(1'b1),
+	 .q(fontrom_address)
+	 );
 
 // === Structure ==============================================
 
@@ -143,9 +179,15 @@ always @(posedge clk or posedge reset) begin
                 vga_b = (current_channel_pixel_status) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
                 // TODO: Set header text
-                vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-                vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-                vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+					 if (pixelout==1) begin
+							vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+							vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+							vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+					 end else begin
+							vga_r = BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+							vga_g = BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+							vga_b = BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+					 end 					 
             end else begin
                 vga_r = BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
                 vga_g = BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
