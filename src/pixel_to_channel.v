@@ -32,12 +32,13 @@ reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
 reg [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number; //ipv bovenstaande
 reg [0:-10] multiply_factor; 
 
+wire [20:0] constant = (pixel_row - OFFSET)/(VGA_VER_RES - OFFSET)
 // === Structure ==============================================
 
 // Determine if the pixel belongs to a channel
 assign is_channel = pixel_row >= OFFSET && channel_count != 0 && visible_channel_number < channel_count;
 
-// Count the number of enabled channels
+// Count the number of enabled channels and determine the multiply factor
 integer i;
 always @(*) begin
     channel_count = 0;
@@ -60,9 +61,7 @@ always @(*) begin
 end
 
 // Determine the height per channel
-
-//assign channel_height = (VGA_VER_RES - OFFSET)/channel_count; // FIXME: Devision is extremely costly, is there a better way?
-assign channel_height = ((VGA_VER_RES - OFFSET)*multiply_factor)>>10; // Dit werkt maar de nauwkeurigheid is nog niet top
+assign channel_height = ((VGA_VER_RES - OFFSET)*multiply_factor)>>10; 
 
 // Determine which visible channel this is
 
