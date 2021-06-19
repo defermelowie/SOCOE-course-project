@@ -2,7 +2,7 @@
 
 *Butaye Jonathan & Deferme Lowie*
 
-<img src="./res/screenshot.jpg" alt="Screenshot" style="zoom:15%;" />
+<img src="./res/screenshot.jpg" alt="Screenshot" style="zoom:10%;" />
 
 ## Structure
 
