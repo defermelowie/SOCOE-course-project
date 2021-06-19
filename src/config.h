@@ -17,11 +17,11 @@ parameter TEXT_COLOR = 24'hECEFF4;
 
 // TODO: Optional, make sample frequency configurable instead of counter val
 // This is when the counter resets and new data is read.
-parameter TRIGGER_VAL = 50_000_000;
+parameter TRIGGER_VAL = 20_000_000;
 
 // === Sample buffer size =====================================
 
-parameter SAMPLE_BUFF_SIZE = 32;
+parameter SAMPLE_BUFF_SIZE = 64;
 
 // === Header size ============================================
 // This is the size in pixels of the header at the top of the screen

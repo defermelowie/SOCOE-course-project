@@ -36,7 +36,7 @@ void setup()
     // Init data
     for (int i = 0; i < DATA_BUFF_SIZE; i++)
     {
-        data_array[i] = i; // a -> 1010 1010
+        data_array[i] = 4*i+i; // a -> 1010 1010
     }
 }
 
