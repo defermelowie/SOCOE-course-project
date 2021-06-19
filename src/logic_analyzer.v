@@ -60,13 +60,6 @@ reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches prede
 wire trigger = (trigger_counter == TRIGGER_VAL);
 
 
-//reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
-/*
-parameter contents = "header_buffer.mif";
-initial begin
-$readmem(contents, header_buffer_reg);
-end
-*/
 wire pixelout;
 wire [14:0] fontaddress; // address to the 32K x 1 font ROM
 wire [3:0] f_pixel_hor; // horizontal pixel address in 16x16 font
