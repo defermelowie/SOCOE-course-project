@@ -3,6 +3,7 @@ module logic_analyzer (
     reset,        // input ---> asynchronous reset
     chan_enable,  // input ---> array with an enable for each channel
     chan_in,      // input ---> input signal of each channel
+    trig_enable,  // input ---> enable triggering (data reading)
     vga_r,        // output --> vga red signal
     vga_g,        // output --> vga green signal
     vga_b,        // output --> vga blue signal
@@ -26,6 +27,7 @@ input clk;
 input reset;
 input [CHANNEL_COUNT-1:0] chan_enable;
 input [CHANNEL_COUNT-1:0] chan_in;
+input trig_enable;
 output reg [VGA_COLOR_DEPTH-1:0] vga_r;
 output reg [VGA_COLOR_DEPTH-1:0] vga_g;
 output reg [VGA_COLOR_DEPTH-1:0] vga_b;
@@ -57,7 +59,7 @@ wire current_channel_pixel_status;
 wire [SAMPLE_BUFF_SIZE-1:0] channel_data [CHANNEL_COUNT-1:0];
 wire [SAMPLE_BUFF_SIZE-1:0] current_channel_data = channel_data[current_channel];
 reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches predefined value
-wire trigger = (trigger_counter == TRIGGER_VAL);
+wire trigger = (trigger_counter == TRIGGER_VAL) && trig_enable;
 
 
 reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
@@ -166,7 +168,7 @@ always @(posedge clk or posedge reset) begin
     if (reset)
         trigger_counter = 0;
     else begin
-        if (trigger)    // If triggered previous clock cycle, reset counter. Otherwise count up
+        if (trigger || ~trig_enable)    // If triggered previous clock cycle, reset counter. Otherwise count up
             trigger_counter = 0;
         else
             trigger_counter = trigger_counter + 1;
