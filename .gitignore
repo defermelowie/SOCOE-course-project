@@ -80,7 +80,7 @@
 *.psm
 *.bak
 *.cmp
-*.jpg
+#*.jpg
 *.html
 *.bsf
 
