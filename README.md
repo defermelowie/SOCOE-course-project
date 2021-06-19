@@ -11,3 +11,7 @@ This file contains general configuration parameters
 ### `vga.h`
 
 This file defines the vga timing information
+
+## Screenshot
+
+![Screenshot](./docs/res/screenshot.jpg)
