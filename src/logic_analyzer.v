@@ -17,7 +17,7 @@ module logic_analyzer (
 
 // === Parameters =============================================
 
-parameter CHANNEL_COUNT = 8;
+parameter CHANNEL_COUNT = 10;
 parameter CLOCK_FREQ = 50_000_000;
 
 // === Module IO ==============================================
@@ -60,30 +60,25 @@ reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches prede
 wire trigger = (trigger_counter == TRIGGER_VAL);
 
 
-reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
-/*
-parameter contents = "header_buffer.mif";
-initial begin
-$readmem(contents, header_buffer_reg);
-end
-*/
 wire pixelout;
 wire [14:0] fontaddress; // address to the 32K x 1 font ROM
 wire [3:0] f_pixel_hor; // horizontal pixel address in 16x16 font
 wire [3:0] f_pixel_ver; // vertical pixel address in 16x16 font
 wire [6:0] char_col; // column number of a character
-wire [1:0] char_row; // row number of a character
+wire char_row; // row number of a character
 wire [6:0] fontrom_address;
-wire [8:0] index;
+wire [7:0] index;
+wire [0:36] channel_enable_extended;
 assign index = {char_row, char_col};
 
 assign f_pixel_hor = vga_display_col[3:0];
 assign f_pixel_ver = vga_display_row[3:0];
 assign char_col = vga_display_col[10:4];
-assign char_row = vga_display_row[5:4];
+assign char_row = vga_display_row[4];
 
-assign fontaddress = {header_buffer_reg[index], f_pixel_ver, f_pixel_hor};
- 
+assign fontaddress = {fontrom_address, f_pixel_ver, f_pixel_hor};
+
+assign channel_enable_extended = {chan_enable[0], 3'b111, chan_enable[1], 3'b111, chan_enable[2], 3'b111, chan_enable[3], 3'b111, chan_enable[4], 3'b111, chan_enable[5], 3'b111, chan_enable[6], 3'b111, chan_enable[7], 3'b111, chan_enable[8], 3'b111, chan_enable[9]};
 
 // === Used modules ===========================================
 
@@ -187,11 +182,24 @@ always @(posedge clk or posedge reset) begin
                 vga_g = (current_channel_pixel_status) ? SIGNAL_COLOR[15:15 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
                 vga_b = (current_channel_pixel_status) ? SIGNAL_COLOR[07:07 - (VGA_COLOR_DEPTH-1)] : BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
             end else if (is_header_pixel) begin
-                // TODO: Set header text
+					 //Set header pixels
 					 if (pixelout) begin
-							vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
-							vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
-							vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+							//Determine if it is a channel number
+							if (char_row && char_col > 18) begin
+								 if (channel_enable_extended[char_col-19]) begin
+									vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+									vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+									vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+								 end else begin
+									vga_r = BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+									vga_g = BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+									vga_b = BACKGROUND_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+								 end
+							end else begin
+								vga_r = TEXT_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
+								vga_g = TEXT_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
+								vga_b = TEXT_COLOR[07:07 - (VGA_COLOR_DEPTH-1)];
+							end
 					 end else begin
 							vga_r = BACKGROUND_COLOR[23:23 - (VGA_COLOR_DEPTH-1)];
 							vga_g = BACKGROUND_COLOR[15:15 - (VGA_COLOR_DEPTH-1)];
