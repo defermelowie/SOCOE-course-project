@@ -60,7 +60,7 @@ reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches prede
 wire trigger = (trigger_counter == TRIGGER_VAL);
 
 
-reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "header_buffer.mif" */;
+reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
 /*
 parameter contents = "header_buffer.mif";
 initial begin
