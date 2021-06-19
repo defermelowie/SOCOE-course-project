@@ -6,7 +6,9 @@
 
 ## Structure
 
-TODO: Show overview
+TODO: Explain overview
+
+![Overview of the structure](./res/structure.svg)
 
 ### Top level design file
 
