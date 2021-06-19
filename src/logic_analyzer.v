@@ -60,7 +60,7 @@ reg [31:0] trigger_counter; // Trigger (chan_in) when this counter reaches prede
 wire trigger = (trigger_counter == TRIGGER_VAL);
 
 
-reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
+//reg [6:0] header_buffer_reg [0:255]/* synthesis ram_init_file = "../res/header_buffer.mif" */;
 /*
 parameter contents = "header_buffer.mif";
 initial begin
@@ -83,7 +83,7 @@ assign f_pixel_ver = vga_display_row[3:0];
 assign char_col = vga_display_col[10:4];
 assign char_row = vga_display_row[4];
 
-assign fontaddress = {header_buffer_reg[index], f_pixel_ver, f_pixel_hor};
+assign fontaddress = {fontrom_address, f_pixel_ver, f_pixel_hor};
 
 assign channel_enable_extended = {chan_enable[0], 3'b111, chan_enable[1], 3'b111, chan_enable[2], 3'b111, chan_enable[3], 3'b111, chan_enable[4], 3'b111, chan_enable[5], 3'b111, chan_enable[6], 3'b111, chan_enable[7], 3'b111, chan_enable[8], 3'b111, chan_enable[9]};
 
