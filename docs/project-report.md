@@ -10,7 +10,9 @@ TODO: Show overview
 
 ### Top level design file
 
-This file sits in `./src/boardspecific🗁` and therefore isn't present in the repo. It contains a phase locked loop in order to provide the correct clock for the VGA display. Furthermore necessary IO's are forwarded to the `logic_analyzer` module.
+This file sits in `./src/boardspecific🗁` and therefore isn't present in the repo, however the folder contains a [readme](../src/boardspecific/README.md) with an example of this file.
+
+The top lever design file contains a phase locked loop in order to provide the correct clock for the VGA display. Furthermore necessary IO's are forwarded to the `logic_analyzer` module here. 
 
 ### Logic analyzer
 
