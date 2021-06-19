@@ -14,10 +14,10 @@ assign reset = ~KEY[0];
 
 wire clock;
 
-wire trig_tgl_btn = KEY[1];
+wire trig_tgl_btn = ~KEY[1];
 wire trig_tgl_btn_prev;
 
-reg trig_enable;
+reg trig_enable = 1;
 always @(posedge clock or posedge reset) begin
 	if (reset) begin
 		trig_enable = 1;
