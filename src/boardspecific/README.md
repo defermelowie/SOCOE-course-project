@@ -5,7 +5,7 @@ Put board specific code in this directory, it will be ignored by git.
 For example:
 
 ```Verilog
-/=======================================================
+//=======================================================
 //  REG/WIRE declarations
 //=======================================================
 
@@ -14,6 +14,17 @@ assign reset = ~KEY[0];
 
 wire clock;
 
+wire trig_tgl_btn = ~KEY[1];
+wire trig_tgl_btn_prev;
+
+reg trig_enable = 1;
+always @(posedge clock or posedge reset) begin
+	if (reset) begin
+		trig_enable = 1;
+	end else begin
+		trig_enable = (trig_tgl_btn && ~trig_tgl_btn_prev) ? ~(trig_enable) : trig_enable;
+	end
+end
 
 //=======================================================
 //  Structural coding
@@ -25,6 +36,14 @@ pll_106MHz vga_pll (
 	.c0(clock)
 );
 
+register #(1) trig_tgl_reg (
+	.in(trig_tgl_btn),
+    .write_enable(1),
+    .out(trig_tgl_btn_prev),
+    .clock(clock),
+    .reset(reset)
+);
+
 logic_analyzer #(
 	.CHANNEL_COUNT(10),
 	.CLOCK_FREQ(106.47e6)
@@ -33,6 +52,7 @@ logic_analyzer #(
     .reset(reset),      
     .chan_enable(SW[9:0]),
 	.chan_in(ARDUINO_IO[9:0]),
+	.trig_enable(trig_enable),
     .vga_r(VGA_R),      
     .vga_g(VGA_G),      
     .vga_b(VGA_B),      
