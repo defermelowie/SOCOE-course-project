@@ -4,6 +4,16 @@
 
 <img src="./res/screenshot.jpg" alt="Screenshot" style="zoom:15%;" />
 
+## Short user guide
+
+### Setup
+
+First, the top level design file has to be set up, it is important to make sure that the pll is configured to the correct clock frequency his/her VGA monitor requires. Then by providing physical input singals to the `chan_in` input of the `logic_analyzer` module, the logic analyzer is ready. Optionally some logic could be included in order to operate `trig_enable` via a toggling button instead of a switch (example in [`./src/boardspecific/readme.md`](../src/boardspecific/README.md)).
+
+### Usage
+
+After reset, the system automatically starts reading input signals and shows them on the vga display. Reading can be paused by pressing the "toggle `trig_enable` button". Furthermore switches can be used in order to select which signals are visible, this also updates the header text and hides the channel number if invisible.
+
 ## Introduction
 
 The goal of this project was to create a logic analyzer on an *Altera Max 10* FPGA, therefore development was done on a *Terasic DE10-Lite* FPGA board. Verilog was used as the hardware discription language. The output of the logic analyzer was chosen to be a VGA screen as seen in the screenshot above.
