@@ -79,7 +79,14 @@ module pixel_to_channel(
 To calculate the height of the channel height, the total available height on the the monitor needs to be divided by the total number of active channels.
 The total available height is the vertical resolution of the monitor subtracted by the offset for the header info. The number of active channels can be derived from the channel_enable input.  
 Because a division in hardware requires a lot of logic elements and is slow we need to avoid using it. In this module fixed point operations are used to avoid the division.  
-The idea is to multiply by a number smaller than 1 to become the same result as the desired division. For example, instead of dividing a number by 5, multiply it with 0,2. In order to do this for our purpose to do the division for the channel height the available height is multiplied by 'multiply_factor'. This factor is an 11 bits precision factor between 0 and 1. The proces to determine the multiply factor is shown below:
+The idea is to multiply by a number smaller than 1 to become the same result as the desired division. For example, instead of dividing a number by 5, multiply it with 0,2. In order to do this for our purpose to do the division for the channel height the available height is multiplied by 'multiply_factor'. This factor is an 11 bits precision factor between 0 and 1. The multiply factor is composed as follows:
+```Verilog
+//EXAMPLE the fraction 0,625
+1  1/2  1/4  1/8  1/16 ...
+^   ^    ^    ^    ^
+0 _ 1    0    1    0   ...
+```
+The proces to determine the multiply factor is shown below:
 ```Verilog
 // Count the number of enabled channels and determine the multiply factor
 integer i;
