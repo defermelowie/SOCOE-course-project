@@ -47,7 +47,22 @@ TODO
 
 ### Vga timing generator
 
-TODO
+[`vga_timing_generator`](../scr/vga_timing_generator) behaves as its name suggest. It generates timing signals for the VGA screen such as `hsync` and `vsync`. Furthermore the current pixel is kept track of as well as the next pixel. Finnaly it also provides info on wether or not the current pixel is visible, this is important since old CRT screens may brake when bombarded with electrons outside of the visible region.
+
+```verilog
+module vga_timing_generator (
+    clk,                // input ---> clock signal (T_clock must match one pixel)
+    reset,              // input ---> async reset signal
+    display_col,        // output --> current column
+    display_row,        // output --> current row
+    display_next_col,   // output --> next column
+    display_next_row,   // output --> next row
+    visible,            // output --> is pixel at (current column, current row) visible?
+    visible_next,       // output --> is pixel at (next column, next row) visible?
+    hsync,              // output --> horizontal sync
+    vsync               // output --> vertical sync
+);
+```
 
 ### Data to pixelstatus
 
