@@ -12,7 +12,9 @@ The project code is available in [this github repo](https://github.com/defermelo
 
 ## Structure
 
-TODO: Explain overview
+The top level design file forwards all IO's to the `logic_analyzer` module. It also contains a PLL instance in order to create the correct clock frequency for the VGA display.
+
+Within `logic_analyzer`, `sipo_shift_register` is instanciated `CHANNEL_COUNT` times. These registers contain the data from a channel. Next, in `pixel_to_channel`, a pixel is given as input and it is determined to which channel this pixel belongs (or which channel should be drawn using the given pixel). `data_to_pixelstatus` is then responsible for calculating the status of the pixel (on or off) using data from the corresponding channel. In order to draw the pixels on the VGA screen, `vga_timing_generator` does exactly what its name suggests: it generates timing signals such as `hsync` & `vsync` and keeps track of which pixel is currently drawn. Finnaly there are two RAM modules: fontrom which contains font data and header_buffer, the latter stores the info text from the header.
 
 ![Overview of the structure](./res/structure.svg)
 
@@ -116,6 +118,8 @@ More info about fixed point operations can be found on https://projectf.io/posts
 [This register](../src/sipo_shift_register.v) shifts one to the left when the `shift` input becomes `1`. Sipo is an acronym for "Serial In Parallel Out", this means that bits are read into the register in a serial fashion but the whole register is available as output.
 
 ![Sipo](./res/sipo.svg)
+
+The size can be set using `SAMPLE_BUFF_SIZE` from `config.h` but a too large size results in timing issues
 
 ## Description of headers
 
