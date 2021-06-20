@@ -28,11 +28,8 @@ output [$clog2(VGA_VER_RES)-1:0] channel_height, channel_offset;
 // === Internal signals =======================================
 
 reg [$clog2(MAX_CHAN_COUNT)-1:0] channel_count;
-//wire [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
-reg [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number; //ipv bovenstaande
-reg [0:-10] multiply_factor; 
-
-wire [20:0] constant = (pixel_row - OFFSET)/(VGA_VER_RES - OFFSET);
+reg [$clog2(MAX_CHAN_COUNT)-1:0] visible_channel_number;
+reg [0:-10] multiply_factor;
 // === Structure ==============================================
 
 // Determine if the pixel belongs to a channel
