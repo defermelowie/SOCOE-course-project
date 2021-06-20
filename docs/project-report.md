@@ -8,11 +8,11 @@
 
 ### Setup
 
-First, the top level design file has to be set up, it is important to make sure that the pll is configured to the correct clock frequency his/her VGA monitor requires. Then by providing physical input singals to the `chan_in` input of the `logic_analyzer` module, the logic analyzer is ready. Optionally some logic could be included in order to operate `trig_enable` via a toggling button instead of a switch (example in [`./src/boardspecific/readme.md`](../src/boardspecific/README.md)).
+First, the top level design file has to be set up, it is important to make sure that the pll is configured to the correct clock frequency the VGA monitor requires. Then by providing physical input singals to the `chan_in` input of the `logic_analyzer` module, the logic analyzer is ready. Optionally some logic could be included in order to operate `trig_enable` via a toggling button instead of a switch (example in [`./src/boardspecific/readme.md`](../src/boardspecific/README.md)).
 
 ### Usage
 
-After reset, the system automatically starts reading input signals and shows them on the vga display. Reading can be paused by pressing the "toggle `trig_enable` button". Furthermore switches can be used in order to select which signals are visible, this also updates the header text and hides the channel number if invisible.
+After reset, the system automatically starts reading input signals and shows them on the vga display. Reading can be paused by pressing the "toggle `trig_enable` button". Furthermore switches allow to select which signals (channels) are visible, this also updates the header text and hides the associated channel number when invisible.
 
 ## Introduction
 
@@ -24,7 +24,7 @@ The project code is available in [this github repo](https://github.com/defermelo
 
 The top level design file forwards all IO's to the `logic_analyzer` module. It also contains a PLL instance in order to create the correct clock frequency for the VGA display.
 
-Within `logic_analyzer`, `sipo_shift_register` is instanciated `CHANNEL_COUNT` times. These registers contain the data from a channel. Next, in `pixel_to_channel`, a pixel is given as input and it is determined to which channel this pixel belongs (or which channel should be drawn using the given pixel). `data_to_pixelstatus` is then responsible for calculating the status of the pixel (on or off) using data from the corresponding channel. In order to draw the pixels on the VGA screen, `vga_timing_generator` does exactly what its name suggests: it generates timing signals such as `hsync` & `vsync` and keeps track of which pixel is currently drawn. Finnaly there are two RAM modules: fontrom which contains font data and header_buffer, the latter stores the info text from the header.
+Within `logic_analyzer`, `sipo_shift_register` is instanciated `CHANNEL_COUNT` times. These registers contain the data from each channel. Next, in `pixel_to_channel`, a pixel is given as input and it is determined to which channel this pixel belongs (or which channel should be drawn using the given pixel). `data_to_pixelstatus` is then responsible for calculating the status of the pixel (on or off) using data from the corresponding channel. In order to draw the pixels on the VGA screen, `vga_timing_generator` does exactly what its name suggests: it generates timing signals such as `hsync` & `vsync` and keeps track of which pixel is currently drawn. Finnaly there are two RAM modules: `fontrom` which contains font data and `header_buffer`, the latter stores the info text of the header.
 
 ![Overview of the structure](./res/structure.svg)
 
@@ -90,8 +90,10 @@ TODO: Explain data to pixelstatus
 
 ### Pixel to channel
 
-The [`pixel_to_channel`](../src/pixel_to_channel.v) module calculates the channel height, determines the channel number and of the pixel belongs to a channel. These outputs are derived from the current pixel row, the array with the channel enable signals and some parameters in the header files (more info below).  
-The definition of the IO's of this module is shown below:
+The [`pixel_to_channel`](../src/pixel_to_channel.v) module calculates the channel height, determines the channel number and whether or not a given pixel belongs to a channel. These outputs are derived from the current pixel row, the array with the channel enable signals and some parameters in the header files (more info below).
+
+The definition of the IO's of this module looks the following:
+
 ```Verilog
 module pixel_to_channel(
     channel_enable,         // input ---> Array with channel enable signals (needed to calculate height per channel)
@@ -103,17 +105,19 @@ module pixel_to_channel(
 );
 ```
 
-To calculate the height of the channel height, the total available height on the the monitor needs to be divided by the total number of active channels.
-The total available height is the vertical resolution of the monitor subtracted by the offset for the header info. The number of active channels can be derived from the channel_enable input.  
-Because a division in hardware requires a lot of logic elements and is slow we need to avoid using it. In this module fixed point operations are used to avoid the division.  
-The idea is to multiply by a number smaller than 1 to become the same result as the desired division. For example, instead of dividing a number by 5, multiply it with 0,2. In order to do this for our purpose to do the division for the channel height the available height is multiplied by 'multiply_factor'. This factor is an 11 bits precision factor between 0 and 1. The multiply factor is composed as follows:
+In order to calculate the height of a channel, the total available height on the the monitor has to be divided by the total number of active channels. The total available height is the vertical resolution of the monitor subtracted by the offset for the header info. The number of active channels can be derived from the `channel_enable` input. 
+
+Because a division in hardware requires a lot of logic elements and is slow we need to avoid using it. In this module fixed point operations are used to avoid the division. The idea is to multiply by a number smaller than 1 to become the same result as the desired division. For example, instead of dividing a number by 5, multiply it with 0,2. In order to do this for our purpose, to calculate `channel_height`, the total available height is multiplied by `multiply_factor`. This factor is an 11 bit precision factor between 0 and 1. The `multiply_factor` is composed as follows:
+
 ```Verilog
 //EXAMPLE the fraction 0,625
 1  1/2  1/4  1/8  1/16 ...
 ^   ^    ^    ^    ^
 0 _ 1    0    1    0   ...
 ```
+
 The proces to determine the multiply factor is shown below:
+
 ```Verilog
 // Count the number of enabled channels and determine the multiply factor
 integer i;
@@ -137,13 +141,16 @@ always @(*) begin
    endcase
 end
 ```
-The multiply factors shown above represents the fractions 1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9 and 1/10.  
-If we shift the result of the multiplication with 10 to the right we become the result of the desired division. The different 
+
+The multiply factors shown above represent the fractions `1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9` and `1/10`.  
+If the result of the multiplication is shifted with 10 to the right, the (approx.) result of the desired division appears:
+
 ```Verilog
 // Determine the height per channel
 assign channel_height = ((VGA_VER_RES - OFFSET)*multiply_factor)>>10;
 ```
-More info about fixed point operations can be found on https://projectf.io/posts/fixed-point-numbers-in-verilog/, this is the site we used as inspiration.
+
+For inspiration, on how to solve problems with divisions, https://projectf.io/posts/fixed-point-numbers-in-verilog/ was used. More extensive information on fixed point division is available there.
 
 ### Sipo shift register
 
