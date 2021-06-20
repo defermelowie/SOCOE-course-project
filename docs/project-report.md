@@ -43,7 +43,16 @@ TODO
 
 ### Data to pixelstatus
 
-TODO
+[`pixel_to_channel`](../src/data_to_pixelstatus.v) is the module that determines if a pixel should be on or off based on its position and the channel data. The module definition is shown below:
+```Verilog
+module data_to_pixelstatus (
+           data,       // input ---> data of the channel
+           max_height, // input ---> height in pixels of the channel
+           pxl_row,    // input ---> row of the pixel
+           pxl_col,    // input ---> column of th pixel
+           pxl_status  // output --> status of the pixel: 1 = on, 0 = off
+);
+```
 
 ### Pixel to channel
 
