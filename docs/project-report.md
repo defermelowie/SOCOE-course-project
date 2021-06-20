@@ -43,7 +43,7 @@ module logic_analyzer (
 );
 ```
 
-TODO
+TODO: give overview of logic analyzer module
 
 ### Vga timing generator
 
@@ -76,7 +76,7 @@ module data_to_pixelstatus (
            pxl_status  // output --> status of the pixel: 1 = on, 0 = off
 );
 ```
-TODO
+TODO: Explain data to pixelstatus
 
 ### Pixel to channel
 
@@ -143,11 +143,15 @@ More info about fixed point operations can be found on https://projectf.io/posts
 
 The size can be set using `SAMPLE_BUFF_SIZE` from `config.h` but a too large size results in timing issues
 
+## Overview of used Intel® FPGA IP Cores
+
+TODO: give overview of IP blocks (RAM's and PLL)
+
 ## Description of headers
 
 ### Config
 
-[`config.h`](../src/config.h) contains general configuration parameters.
+[`config.h`](../src/config.h) contains general configuration parameters such as background colour, sample buffer size, ...
 
 ### VGA
 
