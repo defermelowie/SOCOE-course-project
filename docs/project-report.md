@@ -47,7 +47,18 @@ TODO
 
 ### Pixel to channel
 
-TODO
+The [`pixel_to_channel`](../src/pixel_to_channel.v) module calculates the channel height, determines the channel number and of the pixel belongs to a channel. These outputs are derived from the current pixel row, the array with the channel enable signals and some parameters in the header files (more info below).  
+The definition of the IO's of this module is shown below:
+```Verilog
+module pixel_to_channel(
+    channel_enable,         // input ---> Array with channel enable signals (needed to calculate height per channel)
+    pixel_row,              // input ---> Pixel row of which to get the channel
+    is_channel,             // output --> Belongs pixel row to a channel?
+    channel_number,         // output --> Channel number based on pixel row
+    channel_height,         // output --> height of the channel in pixels
+    channel_offset          // output --> channel vertical offset
+);
+```
 
 ### Sipo shift register
 
