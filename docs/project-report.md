@@ -53,7 +53,7 @@ module logic_analyzer (
 );
 ```
 
-TODO: give overview of logic analyzer module
+This module forms the cohesion of the other modules, it defines the structure and uses the other modules to generate the right vga signals. For example, in this module the `CHANNEL_COUNT` `sipo_shift_register` are generated. 
 
 ### Vga timing generator
 
