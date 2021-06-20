@@ -69,6 +69,36 @@ module pixel_to_channel(
 );
 ```
 
+To calculate the height of the channel height, the total available height on the the monitor needs to be divided by the total number of active channels.
+The total available height is the vertical resolution of the monitor subtracted by the offset for the header info. The number of active channels can be derived from the channel_enable input.  
+Because a division in hardware requires a lot of logic elements and is slow we need to avoid using it. In this module fixed point operations are used to avoid the division.  
+The idea is to multiply by a number smaller than 1 to become the same result as the desired division. For example, instead of dividing a number by 5, multiply it with 0,2. In order to do this for our purpose to do the division for the channel height the available height is multiplied by 'multiply_factor'. This factor is an 11 bits precision factor between 0 and 1. The proces to determine the multiply factor is shown below:
+```Verilog
+// Count the number of enabled channels and determine the multiply factor
+integer i;
+always @(*) begin
+    channel_count = 0;
+    for(i=0; i<MAX_CHAN_COUNT; i=i+1) begin
+        channel_count = channel_count + channel_enable[i];
+    end
+    case (channel_count)
+	'b0001	:	multiply_factor = 11'b1_0000000000;
+	'b0010	:	multiply_factor = 11'b0_1000000000;
+	'b0011	:	multiply_factor = 11'b0_0101010101;
+	'b0100	:	multiply_factor = 11'b0_0100000000;
+	'b0101	:	multiply_factor = 11'b0_0011001100;
+	'b0110	:	multiply_factor = 11'b0_0010101010;
+	'b0111	:	multiply_factor = 11'b0_0010010010;
+	'b1000	:	multiply_factor = 11'b0_0010000000;
+	'b1001	:	multiply_factor = 11'b0_0001110001;
+	'b1010	:	multiply_factor = 11'b0_0001100110;
+	default	:	multiply_factor = 11'b0_0000000000;
+   endcase
+end
+```
+If we shift the result of the multiplication with 10 to the right we become the result of the desired division. The different 
+TODO...
+
 ### Sipo shift register
 
 [This register](../src/sipo_shift_register.v) shifts one to the left when the `shift` input becomes `1`. Sipo is an acronym for "Serial In Parallel Out", this means that bits are read into the register in a serial fashion but the whole register is available as output.
