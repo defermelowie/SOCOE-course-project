@@ -120,8 +120,9 @@ More info about fixed point operations can be found on https://projectf.io/posts
 ### VGA
 
 [`vga.h`](../src/vga.h) defines the vga timing information.   
+
 We included the timing parameters for the following resolutions:  
-    * 800x600 at 60Hz refresh rate  
-    * 1280x1024 at 60Hz refresh rate  
-    * 1440x900 at 60Hz refresh rate  
-    * 1920x1080 at 60Hz refresh rate  
+* 800x600 at 60Hz refresh rate  
+* 1280x1024 at 60Hz refresh rate  
+* 1440x900 at 60Hz refresh rate  
+* 1920x1080 at 60Hz refresh rate  
