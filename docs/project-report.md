@@ -2,7 +2,13 @@
 
 *Butaye Jonathan & Deferme Lowie*
 
-<img src="./res/screenshot.jpg" alt="Screenshot" style="zoom:10%;" />
+<img src="./res/screenshot.jpg" alt="Screenshot" style="zoom:15%;" />
+
+## Introduction
+
+The goal of this project was to create a logic analyzer on an *Altera Max 10* FPGA, therefore development was done on a *Terasic DE10-Lite* FPGA board. Verilog was used as the hardware discription language. The output of the logic analyzer was chosen to be a VGA screen as seen in the screenshot above.
+
+The project code is available in [this github repo](https://github.com/defermelowie/SOCOE-course-project/).
 
 ## Structure
 
