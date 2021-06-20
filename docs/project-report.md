@@ -216,7 +216,7 @@ The two SDRAM IP blocks are used for the header text, shown in the picture below
 
 The `fontrom` block contains the pixel definition for 16x16 characters. These characters are addressed with their ascii number. The other SDRAM block is `header_buffer`, in this memory the ascii codes from the characters used in the header are saved. So the output of this block is used to feed the input of the fontrom block.
 
-The image below shows an overview of the used logic of the FPGA:
+The image below shows an overview of the used logic of the FPGA:  
 ![image](https://user-images.githubusercontent.com/61016433/122682805-dbd38100-d1fb-11eb-914f-b8112bb0eb08.png)
 
 ## Description of headers
