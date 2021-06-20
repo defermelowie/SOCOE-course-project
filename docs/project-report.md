@@ -77,6 +77,7 @@ module vga_timing_generator (
 ### Data to pixelstatus
 
 [`data_to_pixelstatus`](../src/data_to_pixelstatus.v) is the module that determines if a pixel should be on or off based on its position and the channel data. The module definition is shown below:
+
 ```Verilog
 module data_to_pixelstatus (
            data,       // input ---> data of the channel
@@ -86,7 +87,51 @@ module data_to_pixelstatus (
            pxl_status  // output --> status of the pixel: 1 = on, 0 = off
 );
 ```
-TODO: Explain data to pixelstatus
+
+First it is determined what data (1 or 0) should be drawn at the current column, this could be done by selecting `data[pxl_col*sizeof(data)/h_res]` with `pxl_col` being the current pixel's column and `h_res` the total amount of columns (=horizontal resolution). However since divisions in hardware are extremely costly, the following workaround was used: 
+
+1. Since `sizeof(data)/h_res` is a division between constants, it can be evaluated at synthesis time.
+1. `sizeof(data)` is less than `h_res` and therefore integer division would give `0`. This is resolved by shifting `sizeof(data)` first.
+1. At 'runtime' `pxl_col` is multiplied by the constant `sizeof(data)<<FP_SCALING_SHIFT/h_res`.
+1. Finally the result is shifted back and the data for this column can be determined.
+
+In code this looks the following:
+
+```Verilog
+// Constant function for fixed point division
+localparam FP_SCALING_SHIFT = 12;
+
+function integer fp_div;
+    input integer dividend;
+    input integer divisor;
+    begin
+        fp_div = (dividend<<FP_SCALING_SHIFT)/divisor;
+    end  
+endfunction
+
+// Usage of the function
+wire data_at_curr_pxl_col = data[(pxl_col*fp_div(DATA_SIZE,VGA_HOR_RES))>>FP_SCALING_SHIFT];
+```
+
+Now that the data at a given column is known the pixelstatus can be defined as shown below. With `pxl_data_high_status` and `pxl_data_low_status` being the status based on the current row for both cases.
+
+```Verilog
+assign pxl_status = ((data_at_curr_pxl_col) ? pxl_data_high_status : pxl_data_low_status)
+```
+
+Next, the only thing that remains is to draw vertical lines whenever the data value changes from the previous column to the current column. A change of data is simply defined as:
+
+```verilog
+wire data_change = data_at_curr_pxl_col != data_at_prev_pxl_col;
+```
+
+With `data_at_prev_pxl_col` defined in a similar way to `data_at_curr_pxl_col`.
+
+Finally by changing the `pxl_status` assignment, vertical lines appear.
+
+```verilog
+assign pxl_status = ((data_at_curr_pxl_col) ? pxl_data_high_status : pxl_data_low_status) || (data_change && pxl_data_change_status);
+```
 
 ### Pixel to channel
 
