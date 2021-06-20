@@ -207,7 +207,14 @@ The size can be set using `SAMPLE_BUFF_SIZE` from `config.h` but a too large siz
 
 ## Overview of used Intel® FPGA IP Cores
 
-TODO: give overview of IP blocks (RAM's and PLL)
+Their are three IP used in this project, two SDRAM blocks and one PLL.  
+The PLL's is used for the appropriate clock signal. The frequency of the clock signal is depends on the resolution on the monitor. For example, if using a monitor with a resolution of 1280x1024 at 60Hz refresh rate a clock frequency of 108MHz is needed. The needed clock frequencies are mentioned in the [vga.h file](../src//vga.h).
+
+The two SDRAM IP blocks are used for the header text, shown in the picture below:
+
+![image](https://user-images.githubusercontent.com/61016433/122678836-b12bfd00-d1e8-11eb-8de9-e024ac9926b7.png)  
+
+The `fontrom` block contains the pixel definition for 16x16 characters. These characters are addressed with their ascii number. The other SDRAM block is `header_buffer`, in this memory the ascii codes from the characters used in the header are saved. So the output of this block is used to feed the input of the fontrom block.
 
 ## Description of headers
 
