@@ -82,22 +82,27 @@ always @(*) begin
         channel_count = channel_count + channel_enable[i];
     end
     case (channel_count)
-	'b0001	:	multiply_factor = 11'b1_0000000000;
-	'b0010	:	multiply_factor = 11'b0_1000000000;
-	'b0011	:	multiply_factor = 11'b0_0101010101;
-	'b0100	:	multiply_factor = 11'b0_0100000000;
-	'b0101	:	multiply_factor = 11'b0_0011001100;
-	'b0110	:	multiply_factor = 11'b0_0010101010;
-	'b0111	:	multiply_factor = 11'b0_0010010010;
-	'b1000	:	multiply_factor = 11'b0_0010000000;
-	'b1001	:	multiply_factor = 11'b0_0001110001;
-	'b1010	:	multiply_factor = 11'b0_0001100110;
-	default	:	multiply_factor = 11'b0_0000000000;
+	'b0001	:	multiply_factor = 11'b1_0000000000;  // -> 1   
+	'b0010	:	multiply_factor = 11'b0_1000000000;  // -> 1/2 (0,5)
+	'b0011	:	multiply_factor = 11'b0_0101010101;  // -> 1/3 (0,333007813)
+	'b0100	:	multiply_factor = 11'b0_0100000000;  // -> 1/4 (0,25)
+	'b0101	:	multiply_factor = 11'b0_0011001100;  // -> 1/5 (0,19921875)
+	'b0110	:	multiply_factor = 11'b0_0010101010;  // -> 1/6 (0,166015625)
+	'b0111	:	multiply_factor = 11'b0_0010010010;  // -> 1/7 (0,142578125)
+	'b1000	:	multiply_factor = 11'b0_0010000000;  // -> 1/8 (0,125)
+	'b1001	:	multiply_factor = 11'b0_0001110001;  // -> 1/9 (0,110351563)
+	'b1010	:	multiply_factor = 11'b0_0001100110;  // -> 1/10 (0,099609375)
+	default	:	multiply_factor = 11'b0_0000000000;  // -> 0 
    endcase
 end
 ```
+The multiply factors shown above represents the fractions 1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9 and 1/10.  
 If we shift the result of the multiplication with 10 to the right we become the result of the desired division. The different 
-TODO...
+```Verilog
+// Determine the height per channel
+assign channel_height = ((VGA_VER_RES - OFFSET)*multiply_factor)>>10;
+```
+More info about fixed point operations can be found on https://projectf.io/posts/fixed-point-numbers-in-verilog/, this is the site we used as inspiration.
 
 ### Sipo shift register
 
