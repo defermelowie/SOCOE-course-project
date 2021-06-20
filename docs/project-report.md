@@ -91,7 +91,7 @@ module data_to_pixelstatus (
 First it is determined what data (1 or 0) should be drawn at the current column, this could be done by selecting `data[pxl_col*sizeof(data)/h_res]` with `pxl_col` being the current pixel's column and `h_res` the total amount of columns (=horizontal resolution). However since divisions in hardware are extremely costly, the following workaround was used: 
 
 1. Since `sizeof(data)/h_res` is a division between constants, it can be evaluated at synthesis time.
-1. `sizeof(data)` is less than `h_res` and therefore integer division would give `0`. This is resolved by shifting `sizeof(data)` first.
+    * `sizeof(data)` is less than `h_res` and therefore integer division would give `0`. This is resolved by shifting `sizeof(data)` first.
 1. At 'runtime' `pxl_col` is multiplied by the constant `sizeof(data)<<FP_SCALING_SHIFT/h_res`.
 1. Finally the result is shifted back and the data for this column can be determined.
 
